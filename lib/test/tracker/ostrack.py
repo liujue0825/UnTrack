@@ -82,7 +82,10 @@ class OSTrack(BaseTracker):
             # merge the template and the search
             # run the transformer
             out_dict = self.network.forward(
-                template=self.z_dict1.tensors, search=x_dict.tensors, ce_template_mask=self.box_mask_z, infer=True)
+                template=[self.z_dict1.tensors], search=[x_dict.tensors], ce_template_mask=self.box_mask_z, infer=True)
+
+        if isinstance(out_dict, list):
+            out_dict = out_dict[-1]
 
         # add hann windows
         pred_score_map = out_dict['score_map']

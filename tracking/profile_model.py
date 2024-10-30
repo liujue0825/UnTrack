@@ -115,12 +115,13 @@ if __name__ == "__main__":
         model = model.to(device)
         template = template.to(device)
         search = search.to(device)
-
+        template_list = [template]
+        search_list = [search]
         merge_layer = cfg.MODEL.BACKBONE.MERGE_LAYER
         if merge_layer <= 0:
-            evaluate_vit(model, template, search)
+            evaluate_vit(model, template_list, search_list)
         else:
-            evaluate_vit_separate(model, template, search)
+            evaluate_vit_separate(model, template_list, search_list)
 
     else:
         raise NotImplementedError

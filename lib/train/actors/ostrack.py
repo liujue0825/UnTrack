@@ -38,8 +38,8 @@ class OSTrackActor(BaseActor):
 
     def forward_pass(self, data):
         # currently only support 1 template and 1 search region
-        assert len(data['template_images']) == 3
-        assert len(data['search_images']) == 3
+        # assert len(data['template_images']) == 3
+        # assert len(data['search_images']) == 3
 
         template_list = []
         for i in range(len(data['template_images'])):

@@ -61,13 +61,6 @@ cfg.TRAIN.SCHEDULER = edict()
 cfg.TRAIN.SCHEDULER.TYPE = "step"
 cfg.TRAIN.SCHEDULER.DECAY_RATE = 0.1
 
-# TRAIN.ALPHA
-cfg.TRAIN.ALPHA = edict()
-cfg.TRAIN.ALPHA.DECAY_INIT = 1.0
-cfg.TRAIN.ALPHA.DECAY_MODE = 'step'
-cfg.TRAIN.ALPHA.DECAY_EPOCH = 100
-cfg.TRAIN.ALPHA.DECAY_RATE = 0.1
-
 # DATA
 cfg.DATA = edict()
 cfg.DATA.SAMPLER_MODE = "causal"  # sampling methods

@@ -9,11 +9,11 @@ def local_env_settings():
     # NOTE: Cross-modality
     settings.comtb_path = '/home/pod/shared-nvme/dataset'
 
-    settings.prj_dir = '/home/pod/shared-nvme/code/DATrack'
-    settings.result_plot_path = '/home/pod/shared-nvme/code/DATrack/output/test/result_plots'
-    settings.results_path = '/home/pod/shared-nvme/code/DATrack/output/test/tracking_results'  # Where to store tracking results
-    settings.save_dir = '/home/pod/shared-nvme/code/DATrack/output'
-    settings.network_path = '/home/pod/shared-nvme/code/DATrack/output/test/networks'  # Where tracking networks are stored.
+    settings.prj_dir = '/home/pod/shared-nvme/code/OSTrack'
+    settings.result_plot_path = '/home/pod/shared-nvme/code/OSTrack/output/test/result_plots'
+    settings.results_path = '/home/pod/shared-nvme/code/OSTrack/output/test/tracking_results'  # Where to store tracking results
+    settings.save_dir = '/home/pod/shared-nvme/code/OSTrack/output'
+    settings.network_path = '/home/pod/shared-nvme/code/OSTrack/output/test/networks'  # Where tracking networks are stored.
 
     settings.davis_dir = ''
     settings.got10k_lmdb_path = '/DATA/liujue/OSTrack/data/got10k_lmdb'

@@ -9,7 +9,6 @@ from torch.nn.modules.transformer import _get_clones
 
 from lib.models.layers.head import build_box_head
 from lib.models.ostrack.vit import vit_base_patch16_224
-from lib.models.layers.domain import AdaptiveGradReverse, AlphaScheduler
 from lib.models.ostrack.vit_ce import vit_large_patch16_224_ce, vit_base_patch16_224_ce
 from lib.utils.box_ops import box_xyxy_to_cxcywh
 
@@ -17,7 +16,7 @@ from lib.utils.box_ops import box_xyxy_to_cxcywh
 class OSTrack(nn.Module):
     """ This is the base class for OSTrack """
 
-    def __init__(self, transformer, box_head, aux_loss=False, head_type="CORNER", grl=None):
+    def __init__(self, transformer, box_head, aux_loss=False, head_type="CORNER"):
         """ Initializes the model.
         Parameters:
             transformer: torch module of the transformer architecture.
@@ -48,17 +47,25 @@ class OSTrack(nn.Module):
                 ):
         assert isinstance(template, list), "The type of template is not List"
         assert isinstance(search, list), "The type of search is not List"
+
         out_dict = []
         for i in range(len(search)):
-            x, aux_dict = self.backbone(z=template[i], x=search[i],
-                                        ce_template_mask=ce_template_mask,
-                                        ce_keep_rate=ce_keep_rate,
-                                        return_last_attn=return_last_attn,
-                                        template_label=template_label[i],
-                                        search_label=search_label[i],
-                                        infer=infer
-                                        )
-
+            if infer:
+                x, aux_dict = self.backbone(z=template[i], x=search[i],
+                                            ce_template_mask=ce_template_mask,
+                                            ce_keep_rate=ce_keep_rate,
+                                            return_last_attn=return_last_attn,
+                                            infer=infer
+                                            )
+            else:
+                x, aux_dict = self.backbone(z=template[i], x=search[i],
+                                            ce_template_mask=ce_template_mask,
+                                            ce_keep_rate=ce_keep_rate,
+                                            return_last_attn=return_last_attn,
+                                            template_label=template_label[i],
+                                            search_label=search_label[i],
+                                            infer=infer
+                                            )
             # Forward head
             feat_last = x
             if isinstance(x, list):

@@ -24,7 +24,7 @@ def parameters(yaml_name: str):
     params.checkpoint = os.path.join(save_dir, "checkpoints/train/ostrack/%s/OSTrack_ep%04d.pth.tar" %
                                      (yaml_name, cfg.TEST.EPOCH))
     # NOTE: 便于测试换绝对路径
-    params.checkpoint = "/home/pod/shared-nvme/code/DATrack/output/checkpoints/train/ostrack/OSTrack/OSTrack_ep0025.pth.tar"
+    params.checkpoint = "/home/pod/shared-nvme/OSTrack_ep0300.pth.tar"
     
     # whether to save boxes from all queries
     params.save_all_boxes = False
