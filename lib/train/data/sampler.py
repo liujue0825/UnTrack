@@ -148,60 +148,48 @@ class TrackingSampler(torch.utils.data.Dataset):
                 template_frame_ids = [1] * self.num_template_frames
                 search_frame_ids = [1] * self.num_search_frames
             try:
+                # TODO: 重组下两个ids
+                template_frame_id = template_frame_ids[0]
+                search_frame_id_2 = search_frame_ids[1]
+                template_frame_ids.append(template_frame_id)
+                template_frame_ids.append(search_frame_id_2)
+                search_frame_ids.append(template_frame_id)
+
                 # NOTE: 额外加载模态标签
                 template_frames, template_anno, meta_obj_train, label_train = dataset.get_frames(seq_id, template_frame_ids, seq_info_dict)
                 search_frames, search_anno, meta_obj_test, label_train_search = dataset.get_frames(seq_id, search_frame_ids, seq_info_dict)
 
                 # TODO: 实现的核心点 template_frame_ids 和 search_frame_ids 进行交换
+                # 主要关注每次的 tracking pair:
+                # 第一次: [template_id, search_id[0]] -> 预测框
+                # 第二次: [template_id, search_id[1]]
+                # 第三次: [search_id[1], template_id] -> 预测框
                 H, W, _ = template_frames[0].shape
                 template_masks = template_anno['mask'] if 'mask' in template_anno else [torch.zeros(
-                    (H, W))] * self.num_template_frames
+                    (H, W))] * len(template_frames)
                 search_masks = search_anno['mask'] if 'mask' in search_anno else [torch.zeros(
-                    (H, W))] * self.num_search_frames
+                    (H, W))] * len(search_frames)
 
                 # NOTE: 补充了模态标签的 data 字典: 'template_label' 和 'search_label'
+                data = TensorDict({'template_images': template_frames,
+                                   'template_anno': template_anno['bbox'],
+                                   'template_masks': template_masks,
+                                   'search_images': search_frames,
+                                   'search_anno': search_anno['bbox'],
+                                   'search_masks': search_masks,
+                                   'dataset': dataset.get_name(),
+                                   'test_class': meta_obj_test.get('object_class_name'),
+                                   'template_label': label_train,
+                                   'search_label': label_train_search})
                 # make data augmentation
-                forward_data = TensorDict({'template_images': template_frames,
-                                           'template_anno': template_anno['bbox'],
-                                           'template_masks': template_masks,
-                                           'search_images': search_frames,
-                                           'search_anno': search_anno['bbox'],
-                                           'search_masks': search_masks,
-                                           'dataset': dataset.get_name(),
-                                           'test_class': meta_obj_test.get('object_class_name'),
-                                           'template_label': label_train,
-                                           'search_label': label_train_search})
-
-                backward_data = TensorDict({'template_images': search_frames,
-                                            'template_anno': search_anno['bbox'],
-                                            'template_masks': search_masks,
-                                            'search_images': template_frames,
-                                            'search_anno': template_anno['bbox'],
-                                            'search_masks': template_masks,
-                                            'dataset': dataset.get_name(),
-                                            'test_class': meta_obj_test.get('object_class_name'),
-                                            'template_label': label_train_search,
-                                            'search_label': label_train})
-                forward_data = self.processing(forward_data)
-                backward_data = self.processing(backward_data)
+                data = self.processing(data)
 
                 # check whether data is valid
-                valid = forward_data['valid'] & backward_data['valid']
-
-                # NOTE: 前向追踪和反向追踪的数据组合
-                data = TensorDict({
-                    key: torch.cat((forward_data[key], backward_data[key]), dim=0)
-                    for key in forward_data.keys()
-                    if isinstance(forward_data[key], torch.Tensor)
-                })
-                for key in forward_data.keys():
-                    if not (isinstance(forward_data[key], torch.Tensor)):
-                        data[key] = forward_data[key]
-
+                valid = data['valid']
             except:
                 valid = False
 
-        return data
+            return data
 
     def getitem_cls(self):
         # get data for classification

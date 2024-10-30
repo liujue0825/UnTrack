@@ -46,25 +46,31 @@ class OSTrack(nn.Module):
                 search_label=None,
                 infer=True
                 ):
-        x, aux_dict = self.backbone(z=template, x=search,
-                                    ce_template_mask=ce_template_mask,
-                                    ce_keep_rate=ce_keep_rate,
-                                    return_last_attn=return_last_attn,
-                                    template_label=template_label,
-                                    search_label=search_label,
-                                    infer=infer
-                                    )
+        assert isinstance(template, list), "The type of template is not List"
+        assert isinstance(search, list), "The type of search is not List"
+        out_dict = []
+        for i in range(len(search)):
+            x, aux_dict = self.backbone(z=template[i], x=search[i],
+                                        ce_template_mask=ce_template_mask,
+                                        ce_keep_rate=ce_keep_rate,
+                                        return_last_attn=return_last_attn,
+                                        template_label=template_label[i],
+                                        search_label=search_label[i],
+                                        infer=infer
+                                        )
 
-        # Forward head
-        feat_last = x
-        if isinstance(x, list):
-            feat_last = x[-1]
-        out = self.forward_head(feat_last, None)
+            # Forward head
+            feat_last = x
+            if isinstance(x, list):
+                feat_last = x[-1]
+            out = self.forward_head(feat_last, None)
 
-        out.update(aux_dict)
-        out['backbone_feat'] = x
+            out.update(aux_dict)
+            out['backbone_feat'] = x
 
-        return out
+            out_dict.append(out)
+
+        return out_dict
 
     def forward_head(self, cat_feature, gt_score_map=None):
         """
